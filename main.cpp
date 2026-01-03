@@ -1,15 +1,17 @@
-//#include "thermoctrl_regTemp.cpp"
-
-// регулирование температуры двухпозиционным нагревателем
-// выход нормально замкнутый, т.е. управляющее воздействие - на охлаждение
+// СЂРµРіСѓР»РёСЂРѕРІР°РЅРёРµ С‚РµРјРїРµСЂР°С‚СѓСЂС‹ РґРІСѓС…РїРѕР·РёС†РёРѕРЅРЅС‹Рј РЅР°РіСЂРµРІР°С‚РµР»РµРј
+// РІС‹С…РѕРґ РЅРѕСЂРјР°Р»СЊРЅРѕ Р·Р°РјРєРЅСѓС‚С‹Р№, С‚.Рµ. СѓРїСЂР°РІР»СЏСЋС‰РµРµ РІРѕР·РґРµР№СЃС‚РІРёРµ - РЅР° РѕС…Р»Р°Р¶РґРµРЅРёРµ
 
 #define PERIOD_MS 1000
+
 #define OUT_NUM 0
 #define OUT_ON 0
 #define OUT_OFF 1
+
 #define ACTION_UNDEFINED 0
 #define ACTION_HEATING 1
 #define ACTION_COOLING -1
+
+#define HYSTERESIS_C_MIN 1
 
 main()
 {
@@ -17,16 +19,15 @@ main()
     new actionOld = ACTION_UNDEFINED;
     while (true)
     {
-        new setpoint = GetVar(gIndoorSetpointTemp);
-        new temperature = GetVar(gIndoorAverTemp);
-        new hysteresis = GetVar(gHysteresis);
-        if (hysteresis < 0)
-            hysteresis = -hysteresis;
+        new setpoint = GetVar(gSetpointTemperatureC);
+        new temperature = GetVar(gTemperatureC);
+        new hysteresis = GetVar(gHysteresisC);
+        if (hysteresis < HYSTERESIS_C_MIN)
+            hysteresis = HYSTERESIS_C_MIN;
 
         if (temperature <= (setpoint - hysteresis))
             action = ACTION_HEATING;
-        
-        if (temperature > setpoint)
+        else if (temperature > setpoint)
             action = ACTION_COOLING;
 
         if (action != actionOld)
